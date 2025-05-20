@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Send OTP</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h2 {
+      margin-bottom: 30px;
+    }
+
+    button {
+      padding: 14px 28px;
+      font-size: 16px;
+      background-color: #1e88e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+
+    #status {
+      margin-top: 25px;
+      font-size: 15px;
+      text-align: center;
+    }
+
+    .spinner {
+      border: 4px solid #ccc;
+      border-top: 4px solid #1e88e5;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 15px auto 0;
+      display: none;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h2>Send OTP to All Students</h2>
+  <button id="sendOtpBtn">Send OTP</button>
+
+  <div class="spinner" id="spinner"></div>
+  <div id="status"></div>
+
+  <script>
+    document.getElementById("sendOtpBtn").addEventListener("click", async () => {
+      const status = document.getElementById("status");
+      const spinner = document.getElementById("spinner");
+
+      status.textContent = "";
+      spinner.classList.add("visible");
+
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbzlxos4ip3D2MvE2968Fd3HoC8PcEUzPhhZG0Ly-sibmBfvOg-7MOecLjLPetEsO-vO/exec", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: "action=sendotp" // Important for backend recognition
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+
+        const text = await response.text();
+        status.textContent = text;
+      } catch (error) {
+        console.error(error);
+        status.textContent = "❌ An error occurred while sending OTPs.";
+      } finally {
+        spinner.classList.remove("visible");
+      }
+    });
+  </script>
+</body>
+</html>
