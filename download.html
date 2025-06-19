@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Download Google Sheet</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Student Data</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -61,12 +63,19 @@
 </head>
 <body>
 
-  <h2>📥 Download Google Sheet</h2>
+  <h2>📥 Download Student Data</h2>
 
+  <label>Select Class Type</label>
+  <select id="classType">
+    <option value="face">Face-to-Face</option>
+    <option value="online">Online</option>
+  </select>
+
+  <label>Download As </label>
   <select id="format">
     <option value="xlsx">Excel (.xlsx)</option>
     <option value="pdf">PDF (.pdf)</option>
-    <option value="csv">CSV (.csv)</option>
+    
   </select>
 
   <button onclick="downloadSheet()">Download</button>
@@ -75,38 +84,49 @@
   <p id="status"></p>
 
   <script>
-    const sheetId = "1UlLCqCEKqeQZUL3fTmOBu99btTVEg1uIDjrPokvm6SQ"; // Replace with your actual sheet ID
+    const SHEETS = {
+      face:"1UlLCqCEKqeQZUL3fTmOBu99btTVEg1uIDjrPokvm6SQ"; 
+      online: "1ajbb-41vZdZENw99hEiB74AhTeTIzgm5sl6IGvc96Ls"
+    };
 
     function downloadSheet() {
+      const classType = document.getElementById("classType").value;
       const format = document.getElementById("format").value;
       const status = document.getElementById("status");
       const loader = document.getElementById("loader");
+
+      const sheetId = SHEETS[classType];
+
+      if (!sheetId) {
+        alert("❌ Sheet ID is missing!");
+        return;
+      }
 
       status.innerText = "Preparing download...";
       loader.style.display = "block";
 
       let exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=${format}`;
 
-      // Add format-specific parameters
       if (format === "pdf") {
         exportUrl += "&portrait=true&fitw=true&sheetnames=false&printtitle=false&pagenum=UNDEFINED";
       }
 
-      if (format === "csv") {
-        exportUrl += "&gid=0"; // Export the first sheet (you can adjust this if needed)
-      }
+      try {
+        const link = document.createElement("a");
+        link.href = exportUrl;
+        link.target = "_blank";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      const link = document.createElement("a");
-      link.href = exportUrl;
-      link.target = "_blank";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      setTimeout(() => {
-        status.innerText = `✅ Download started: spreadsheet.${format}`;
+        setTimeout(() => {
+          status.innerText = `✅ Download started: ${classType}-class.${format}`;
+          loader.style.display = "none";
+        }, 2000);
+      } catch (error) {
+        status.innerText = "❌ Download failed!";
         loader.style.display = "none";
-      }, 2000);
+      }
     }
   </script>
 
