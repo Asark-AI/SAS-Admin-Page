@@ -85,49 +85,51 @@
 
   <script>
     const SHEETS = {
-      face:"1UlLCqCEKqeQZUL3fTmOBu99btTVEg1uIDjrPokvm6SQ"; 
-      online: "1ajbb-41vZdZENw99hEiB74AhTeTIzgm5sl6IGvc96Ls"
-    };
+  face: "1UlLCqCEKqeQZUL3fTmOBu99btTVEg1uIDjrPokvm6SQ",
+  online: "1ajbb-41vZdZENw99hEiB74AhTeTIzgm5sl6IGvc96Ls"
+};
 
-    function downloadSheet() {
-      const classType = document.getElementById("classType").value;
-      const format = document.getElementById("format").value;
-      const status = document.getElementById("status");
-      const loader = document.getElementById("loader");
+function downloadSheet() {
+  const classType = document.getElementById("classType").value;
+  const format = document.getElementById("format").value;
+  const status = document.getElementById("status");
+  const loader = document.getElementById("loader");
 
-      const sheetId = SHEETS[classType];
+  const sheetId = SHEETS[classType];
 
-      if (!sheetId) {
-        alert("❌ Sheet ID is missing!");
-        return;
-      }
+  if (!sheetId) {
+    alert("❌ Sheet ID is missing!");
+    return;
+  }
 
-      status.innerText = "Preparing download...";
-      loader.style.display = "block";
+  status.innerText = "Preparing download...";
+  loader.style.display = "block";
 
-      let exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=${format}`;
+  let exportUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=${format}`;
 
-      if (format === "pdf") {
-        exportUrl += "&portrait=true&fitw=true&sheetnames=false&printtitle=false&pagenum=UNDEFINED";
-      }
+  if (format === "pdf") {
+    exportUrl += "&portrait=true&fitw=true&sheetnames=false&printtitle=false&pagenum=UNDEFINED";
+  }
 
-      try {
-        const link = document.createElement("a");
-        link.href = exportUrl;
-        link.target = "_blank";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+  try {
+    const link = document.createElement("a");
+    link.href = exportUrl;
+    link.target = "_blank";
+    link.download = `${classType}-class.${format}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-        setTimeout(() => {
-          status.innerText = `✅ Download started: ${classType}-class.${format}`;
-          loader.style.display = "none";
-        }, 2000);
-      } catch (error) {
-        status.innerText = "❌ Download failed!";
-        loader.style.display = "none";
-      }
-    }
+    setTimeout(() => {
+      status.innerText = `✅ Download started: ${classType}-class.${format}`;
+      loader.style.display = "none";
+    }, 2000);
+  } catch (error) {
+    status.innerText = "❌ Download failed!";
+    loader.style.display = "none";
+  }
+}
+
   </script>
 
 </body>
