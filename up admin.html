@@ -6,16 +6,11 @@
   <title>Submit Your Details</title>
   <style>
     :root {
-      --bg-light: #f0f2f5;
       --bg-dark: #121212;
-      --card-light: white;
       --card-dark: #2c2c2c;
-      --text-light: #000;
       --text-dark: #fff;
-      --button-light: #007bff;
       --button-dark: #3399ff;
     }
-
     body {
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       background-color: var(--bg-dark);
@@ -27,7 +22,6 @@
       align-items: center;
       height: 100vh;
     }
-
     .form-container {
       background-color: var(--card-dark);
       padding: 30px;
@@ -37,18 +31,13 @@
       max-width: 450px;
       text-align: center;
     }
-
-    h2 {
-      margin-bottom: 20px;
-    }
-
+    h2 { margin-bottom: 20px; }
     label {
       display: block;
       margin: 12px 0 5px;
       font-weight: 600;
     }
-
-    input, select {
+    input {
       width: 100%;
       padding: 10px;
       border: 1px solid #555;
@@ -56,12 +45,7 @@
       background-color: #1f1f1f;
       color: white;
     }
-
-    input:focus, select:focus {
-      outline: none;
-      box-shadow: 0 0 8px rgba(51, 153, 255, 0.7);
-    }
-
+    input:focus { outline: none; }
     button {
       width: 100%;
       padding: 12px;
@@ -72,63 +56,21 @@
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
-      transition: transform 0.2s ease-in-out;
     }
-
-    button:hover {
-      transform: scale(1.05);
+    .switch-btn {
+      margin-top: 10px;
+      background-color: #ff6600;
     }
-
-    .progress-container {
-      width: 100%;
-      text-align: center;
-      margin-top: 15px;
-    }
-
-    progress {
-      width: 100%;
-      height: 8px;
-      border-radius: 5px;
-      appearance: none;
-    }
-
-    progress::-webkit-progress-bar {
-      background-color: #333;
-      border-radius: 5px;
-    }
-
-    progress::-webkit-progress-value {
-      background-color: #3399ff;
-      border-radius: 5px;
-    }
-
-    #progressText {
-      font-weight: bold;
-      margin-top: 5px;
-    }
-
-    #response {
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    @media (max-width: 768px) {
-      .form-container {
-        padding: 20px;
-      }
-    }
+    .progress-container { margin-top: 15px; }
+    progress { width: 100%; height: 8px; }
+    #progressText { font-weight: bold; margin-top: 5px; }
+    #response { margin-top: 15px; font-weight: bold; }
   </style>
 </head>
-<body data-theme="dark">
+<body>
   <div class="form-container">
     <h2>Submit Your Details</h2>
     <form id="contactForm">
-      <label for="regMode">Registration Mode:</label>
-      <select name="regMode" id="regMode" required>
-        <option value="online">Online</option>
-        <option value="face">Face-to-Face</option>
-      </select>
-
       <label for="name">Name:</label>
       <input type="text" name="name" id="name" required />
 
@@ -144,18 +86,17 @@
         <p id="progressText">0%</p>
       </div>
     </form>
+
+    <button class="switch-btn" id="faceToFaceBtn">Switch to Face-to-Face Mode</button>
     <p id="response"></p>
   </div>
 
   <script>
     const ONLINE_URL = "https://script.google.com/macros/s/AKfycbzlxos4ip3D2MvE2968Fd3HoC8PcEUzPhhZG0Ly-sibmBfvOg-7MOecLjLPetEsO-vO/exec";
-    const FACE_TO_FACE_URL = "https://script.google.com/macros/s/AKfycbwWgmxDUClzi78z7pz63GAPILip_czD5F4Z8gyNRWRlRaM3cNC2fFUwlov8XThTg0Oh7w/exec";
 
     document.getElementById("contactForm").addEventListener("submit", async function (e) {
       e.preventDefault();
-
-      const regMode = document.getElementById("regMode").value;
-      const url = regMode === "face" ? FACE_TO_FACE_URL : ONLINE_URL;
+      const url = ONLINE_URL;
 
       const progressBar = document.getElementById("progressBar");
       const progressText = document.getElementById("progressText");
@@ -168,42 +109,23 @@
       submitBtn.disabled = true;
       submitBtn.innerText = "Submitting...";
 
-      const animateProgress = (target) => {
-        let progress = 0;
-        const interval = setInterval(() => {
-          if (progress >= target) {
-            clearInterval(interval);
-          } else {
-            progress += 2;
-            progressBar.value = progress;
-            progressText.innerText = `${progress}%`;
-          }
-        }, 50);
+      const payload = {
+        action: "register",
+        id: document.getElementById("id").value,
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        regMode: "online"
       };
-
-      animateProgress(90);
-
-      const formData = new FormData(e.target);
-      formData.append("action", "register");
 
       try {
         const res = await fetch(url, {
           method: "POST",
-          body: formData,
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json" },
         });
-
-        const contentType = res.headers.get("content-type");
-        let result;
-
-        if (contentType && contentType.includes("application/json")) {
-          result = await res.json();
-        } else {
-          result = { status: "success", message: await res.text() };
-        }
-
-        animateProgress(100);
+        const result = await res.json();
+        progressBar.value = 100;
         progressText.innerText = "Completed!";
-
         responseEl.style.color = result.status === "success" ? "lightgreen" : "red";
         responseEl.innerText = result.message || "Operation completed.";
         document.getElementById("contactForm").reset();
@@ -216,6 +138,11 @@
         submitBtn.disabled = false;
         submitBtn.innerText = "Submit";
       }
+    });
+
+    // Switch to Face-to-Face button
+    document.getElementById("faceToFaceBtn").addEventListener("click", () => {
+      window.location.href = "http://192.168.43.253";
     });
   </script>
 </body>
